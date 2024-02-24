@@ -3,7 +3,7 @@ import { withAuthFinder } from '@adonisjs/auth'
 import hash from '@adonisjs/core/services/hash'
 import { compose } from '@adonisjs/core/helpers'
 import { BaseModel, column } from '@adonisjs/lucid/orm'
-import { DbAccessTokensProvider } from '@adonisjs/auth/access_tokens'
+import { AccessToken, DbAccessTokensProvider } from '@adonisjs/auth/access_tokens'
 
 const AuthFinder = withAuthFinder(() => hash.use('scrypt'), {
   uids: ['email'],
@@ -11,6 +11,8 @@ const AuthFinder = withAuthFinder(() => hash.use('scrypt'), {
 })
 
 export default class User extends compose(BaseModel, AuthFinder) {
+  currentAccessToken?: AccessToken
+
   @column({ isPrimary: true })
   declare id: number
 
@@ -23,7 +25,10 @@ export default class User extends compose(BaseModel, AuthFinder) {
   @column()
   declare password: string
 
-  @column.dateTime({ autoCreate: true, serialize: (value) => value.toFormat('dd LLL yyyy') })
+  @column.dateTime({
+    autoCreate: true,
+    serialize: (value) => value.toFormat('dd LLL yyyy'),
+  })
   declare createdAt: DateTime
 
   @column.dateTime({ autoCreate: true, autoUpdate: true })
